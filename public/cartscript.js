@@ -59,30 +59,26 @@ var ajaxGet = function(url, successCallback, errorCallback){
 			 
 }
 
-/* var ajaxGetCheckout = function(checkoutURL, successCallback, errorCallback) {
+var ajaxGetCheckout = function(checkoutURL, successCallback, errorCallback) {
 		
 		var limit = 0;
 		
-		console.log("inside ajaxGetCheckout status");
 		function shelverx(){
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST", checkoutURL, true);
-			 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			 xhttp.responseType = 'json';
+			 xhttp.setRequestHeader("Content-type", "application/json");
 			xhttp.onload=function() {
 					if (xhttp.status == 200) {
 						var resp = JSON.parse(xhttp.responseText);
-						console.log("inside 200 status");
-						//successCallback(resp);
+						successCallback(resp);
 											
 						//checkoutCompare();
 						computePrice();
 						
 					}
 				else{
-					console.log("inside else status");
 					limit++;
-					//errorCallback(xhttp.statusText);
+					errorCallback(xhttp.statusText);
 					if (limit < 7) setTimeout( shelverx, 1000 );
 				}
 				 
@@ -92,119 +88,10 @@ var ajaxGet = function(url, successCallback, errorCallback){
 		};
 			xhttp.timeout = 3000;
 			 //xhttp.send();
-			 xhttp.send("cart="+ JSON.stringify(cart) + "&totalPrice=" + totalPrice + "&user_token=Xoe2inqwe");
+			 xhttp.send("cart=" + JSON.stringify(cart) + "&totalPrice=" + totalPrice + "&user_token=Xoe2inqwe");
 		};
 		shelverx();
 	
-	
-} */
-
-var ajaxGetCheckout = function() {
-		
-		//var limit = 0;
-		
-		console.log("inside ajaxGetCheckout status");
-	
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST", "http://localhost:5000/checkout", true);
-			 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			 //xhttp.responseType = 'json';
-			xhttp.onload=function() {
-					if (xhttp.status == 200) {
-						var resp = xhttp.responseText;
-						console.log("inside 200 status");
-						//successCallback(resp);
-											
-						//checkoutCompare();
-						computePrice();
-						
-					}
-				else{
-					console.log("inside else status");
-				}
-				 
-			};
-			xhttp.ontimeout = function() {
-			console.log("timeout in ajaxGetCheckout");
-		};
-			xhttp.timeout = 3000;
-			 //xhttp.send();
-			 xhttp.send("cart="+ JSON.stringify(cart) + "&totalPrice=" + totalPrice + "&user_token=Xoe2inqwe");
-	
-}
-
-
-
-function checkoutCompare() {
-	
-	var quantityMessage = "";
-	var priceMessage = "";
-	var checkoutMessage = "";
-
-	// Check server update
-	for (var a in cart) {
-		
-		// If a certain product in the cart has a quantity of 0, remove it
-		if (cart[a] == 0)
-			delete cart[a];
-		
-		else {
-			// If quantity of a product on the server is less than what's in the cart, concatenate appropriate message and update cart
-			if (cart[a] > productsCompare[a].quantity) {
-				quantityMessage += "There are only " + productsCompare[a].quantity + " " + a + " in stock.\n";
-				cart[a] = productsCompare[a].quantity;
-			}
-		
-			// If price on server changes, concatenate appropriate message
-			if (products[a].price != productsCompare[a].price) {
-				priceMessage += a + "'s price is now $" + productsCompare[a].price + ".\n";
-			}
-		
-			// Concatenate checkout message
-			checkoutMessage += cart[a] + " " + a + ": $" + productsCompare[a].price*cart[a] + ".\n";
-		}
-	}
-	
-	// Add confirmation question in checkout message
-	checkoutMessage += "Confirm?";
-	
-	// Alert user if quantities change
-	if (quantityMessage != "")
-		alert(quantityMessage);
-	
-	// Alert user if prices change
-	if (priceMessage != "")
-		alert(priceMessage);
-		
-	// Update each product
-	for (var a in products)
-		products[a] = productsCompare[a];
-	
-	for (var a in cart) {
-		// If a certain product in the cart has a quantity of 0, remove it
-		if (cart[a] == 0)
-			delete cart[a];
-	}
-	
-	// Compute price to be displayed on cart button
-	computePrice();
-	document.getElementById("showCart").textContent = "Cart ($" + totalPrice + ")"; 
-	
-	// Update prices DOM in HTML
-	showPrices();
-	
-	// Update modal prices and quantities
-	showCart();
-	
-	// If product's quantity is 0, display out of stock
-	showOutOfStock();
-	
-	// Display confirmation message
-	var correct = confirm(checkoutMessage);
-	
-	// If user confirms, alert total price
-	if (correct)
-		alert("The total cost is $" + totalPrice);
 	
 }
 	
@@ -240,22 +127,6 @@ function success(response) {
 			showPrices(); // To show the prices of the products
 			showImages();
 			showOutOfStock();
-}
-
-function successModal(response) {
-	
-	console.log(response);
-			//var products = {};
-			//alert(response + "SUCCESS");
-			for(var key in response){	
-				if(response.hasOwnProperty(key)){
-					productsCompare[key] = response[key];
-					//alert(key);
-				};
-				
-			};
-			console.log(productsCompare);
-	
 }
 
 function showPrices(){
@@ -608,8 +479,3 @@ document.addEventListener('keyup', function(e) {
         modal.style.display = "none";
     }
 });
-
-window.onload = function() {
-var b= document.getElementById("checkout");
-b.addEventListener("click", ajaxGetCheckout, false);
-};
